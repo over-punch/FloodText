@@ -6,6 +6,7 @@ import ToolDirectory from "@/components/ToolDirectory"
 import { version } from "../../../package.json"
 import { version as siteVersion } from "../../package.json"
 import SiteFooter from "../components/SiteFooter"
+import PortsSection from "../components/PortsSection"
 import { MagnetChar } from "@liiift-studio/magnettype"
 
 /** JSON-LD structured data for rich search results */
@@ -146,6 +147,14 @@ removeFloodText(el, original)`} />
 					</div>
 				</div>
 			</section>
+
+			<PortsSection
+				npm="@liiift-studio/floodtext"
+				bundle="floodtext"
+				attr="data-floodtext"
+				framerComponent="FloodText"
+				repo="Liiift-Studio/FloodText"
+			/>
 
 			<SiteFooter current="floodText" npmVersion={version} siteVersion={siteVersion} />
 
