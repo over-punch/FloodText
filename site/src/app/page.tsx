@@ -151,7 +151,7 @@ removeFloodText(el, original)`} />
 			<PortsSection
 				npm="@liiift-studio/floodtext"
 				bundle="floodtext"
-				attr="data-floodtext"
+				attr="data-floodtext" figma="frozen"
 				framerComponent="FloodText"
 				repo="Liiift-Studio/FloodText"
 			/>
