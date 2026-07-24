@@ -1,6 +1,7 @@
 // Layout and metadata for the FloodText site — uses locally-hosted Inter 300 instead of Google Fonts
 import type { Metadata } from "next"
 import "./globals.css"
+import SiteHeader from "../components/SiteHeader"
 
 export const metadata: Metadata = {
 	title: "Flood Text — Per-character wave animation for text",
@@ -26,7 +27,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="en" className="h-full antialiased">
-			<body className="min-h-full flex flex-col">{children}</body>
+			<body className="min-h-full flex flex-col">
+				<SiteHeader current="floodText" githubUrl="https://github.com/Liiift-Studio/FloodText" />{children}</body>
 		</html>
 	)
 }
