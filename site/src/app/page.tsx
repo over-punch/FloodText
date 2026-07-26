@@ -130,7 +130,7 @@ removeFloodText(el, original)`} />
 									<th scope="col" className="pb-2 font-normal">Description</th>
 								</tr>
 							</thead>
-							<tbody className="text-muted zebra-bleed">
+							<tbody className="text-muted zebra">
 								<tr className="hover:bg-foreground/5 transition-colors"><td className="py-2 pr-6 font-mono">effect</td><td className="py-2 pr-6">&apos;wght&apos;</td><td className="py-2">&apos;wght&apos; | &apos;wdth&apos; | &apos;oblique&apos; | &apos;opacity&apos; | &apos;rotation&apos; | &apos;blur&apos; | &apos;size&apos;. Pass an array to layer multiple effects simultaneously. Note: oblique requires Chrome 87+, Firefox 88+, Safari 14.1+. size causes layout recalculation per frame — use low amplitude.</td></tr>
 								<tr className="hover:bg-foreground/5 transition-colors"><td className="py-2 pr-6 font-mono">source</td><td className="py-2 pr-6">&apos;fixed&apos;</td><td className="py-2">&apos;fixed&apos; — all characters share the same amplitude. &apos;sentiment&apos; — per-word AFINN emotional valence scores scale the amplitude; requires <code className="font-mono">npm install sentiment</code>, falls back to &apos;fixed&apos; if not installed.</td></tr>
 								<tr className="hover:bg-foreground/5 transition-colors"><td className="py-2 pr-6 font-mono">amplitude</td><td className="py-2 pr-6">auto</td><td className="py-2">Peak deviation from neutral. Used for single-effect mode. Defaults: wght 200, wdth 20, oblique 15deg, opacity 0.3, rotation 15deg, blur 2px, size 0.15em.</td></tr>
