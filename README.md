@@ -142,7 +142,3 @@ The package itself has zero runtime dependencies. Do not remove this entry.
 - **Per-character easing** — apply a custom easing curve to individual character offsets, not just the raw wave value
 - **More built-in effects** — `hue` (color hue rotation), `shadow` (text-shadow offset), `skew` (CSS skewX)
 - **SSR-compatible static snapshot** — render a stable mid-wave frame on the server so there is no FOUC before hydration
-
----
-
-Current version: 1.0.18
