@@ -2,6 +2,7 @@
 
 // Interactive flood-text demo with cursor/gyro mode, global scale for multi-effect, and live controls
 import { useState, useEffect, useDeferredValue, useRef, useMemo, useCallback } from "react"
+import { useMediaQuery, useClientValue } from "@/lib/clientValue"
 import { FloodText, pauseFloodText, resumeFloodText } from "@liiift-studio/floodtext"
 import type { FloodEffect } from "@liiift-studio/floodtext"
 
@@ -153,17 +154,15 @@ export default function Demo() {
 	const [gyroPeriod, setGyroPeriod] = useState(4)
 
 	// Detected capabilities — resolved client-side after mount
-	const [showCursor, setShowCursor] = useState(false)
-	const [showGyro, setShowGyro] = useState(false)
+	const showCursor = useMediaQuery('(hover: hover)')
+	const isTouch = useMediaQuery('(hover: none)')
+	const hasOrientation = useClientValue(() => 'DeviceOrientationEvent' in window, false)
+	const showGyro = isTouch && hasOrientation
 
 	// Reduced-motion preference — start paused if user prefers reduced motion (#48)
 	useEffect(() => {
 		const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
 		if (mq.matches) setPaused(true)
-		const isHover = window.matchMedia('(hover: hover)').matches
-		const isTouch = window.matchMedia('(hover: none)').matches
-		setShowCursor(isHover)
-		setShowGyro(isTouch && 'DeviceOrientationEvent' in window)
 	}, [])
 
 	// Effective values: gyro-driven when gyroMode active, slider-driven otherwise
@@ -302,7 +301,6 @@ export default function Demo() {
 	/** Stable effect prop — single string or array, not recreated every render (#61) */
 	const effectProp: FloodEffect | FloodEffect[] = useMemo(
 		() => singleEffect ?? [...activeEffects],
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[singleEffect, activeEffects]
 	)
 
