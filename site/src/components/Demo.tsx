@@ -138,7 +138,9 @@ export default function Demo() {
 	const [beforeAfter, setComparing] = useState(false)
 
 	// Pause/resume state and container ref
-	const [paused, setPaused] = useState(false)
+	// null = the visitor has not touched the control, so the reduced-motion preference
+	// decides. Once they toggle, their explicit choice wins for the rest of the session.
+	const [pausedOverride, setPausedOverride] = useState<boolean | null>(null)
 	const containerRef = useRef<HTMLDivElement>(null)
 
 	// Guard so pause/resume effect skips initial mount (#51)
@@ -159,11 +161,9 @@ export default function Demo() {
 	const hasOrientation = useClientValue(() => 'DeviceOrientationEvent' in window, false)
 	const showGyro = isTouch && hasOrientation
 
-	// Reduced-motion preference — start paused if user prefers reduced motion (#48)
-	useEffect(() => {
-		const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-		if (mq.matches) setPaused(true)
-	}, [])
+	// Reduced-motion preference — start paused if the visitor prefers reduced motion (#48)
+	const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+	const paused = pausedOverride ?? prefersReducedMotion
 
 	// Effective values: gyro-driven when gyroMode active, slider-driven otherwise
 	const effectiveDensity = gyroMode ? gyroDensity : density
@@ -266,7 +266,7 @@ export default function Demo() {
 	}, [paused])
 
 	/** Stable pause toggle handler (#63) */
-	const togglePause = useCallback(() => setPaused(v => !v), [])
+	const togglePause = useCallback(() => setPausedOverride(!paused), [paused])
 
 	/** Stable cursor toggle handler (#63) */
 	const toggleCursor = useCallback(() => {
