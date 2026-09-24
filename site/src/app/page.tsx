@@ -30,7 +30,7 @@ export default function Home() {
 			<Hero
 				eyebrow="character-wave animation"
 				title={[{ text: "Character" }, { text: "by character.", italic: true, subtle: true }]}
-				install="@liiift-studio/floodtext"
+				install="@overpunch/floodtext"
 				github="https://github.com/Liiift-Studio/FloodText"
 				tech={["TypeScript", "Zero dependencies", "React + Vanilla JS"]}
 			>
@@ -74,7 +74,7 @@ export default function Home() {
 				<div className="flex flex-col gap-8 text-sm">
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">Drop-in component</p>
-						<CodeBlock code={`import { FloodText } from '@liiift-studio/floodtext'
+						<CodeBlock code={`import { FloodText } from '@overpunch/floodtext'
 
 <FloodText effect="wght" amplitude={200} period={4} density={2} direction="diagonal-down">
   Your paragraph text here...
@@ -82,14 +82,14 @@ export default function Home() {
 					</div>
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">Hook</p>
-						<CodeBlock code={`import { useFloodText } from '@liiift-studio/floodtext'
+						<CodeBlock code={`import { useFloodText } from '@overpunch/floodtext'
 
 const ref = useFloodText({ effect: 'wght', amplitude: 200, period: 4, density: 2, direction: 'diagonal-down' })
 <p ref={ref}>{children}</p>`} />
 					</div>
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">Vanilla JS</p>
-						<CodeBlock code={`import { applyFloodText, startFloodText, removeFloodText, getCleanHTML } from '@liiift-studio/floodtext'
+						<CodeBlock code={`import { applyFloodText, startFloodText, removeFloodText, getCleanHTML } from '@overpunch/floodtext'
 
 const el = document.querySelector('p')
 const original = getCleanHTML(el)
@@ -131,7 +131,7 @@ removeFloodText(el, original)`} />
 			</section>
 
 			<PortsSection
-				npm="@liiift-studio/floodtext"
+				npm="@overpunch/floodtext"
 				bundle="floodtext"
 				attr="data-floodtext" figma="frozen"
 				framerComponent="FloodText"
