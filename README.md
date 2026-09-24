@@ -1,14 +1,14 @@
 # Flood Text
 
-[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Ffloodtext.svg)](https://www.npmjs.com/package/@overpunch/floodtext) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
+[![npm](https://img.shields.io/npm/v/%40overpunch%2Ffloodtext.svg)](https://www.npmjs.com/package/@overpunch/floodtext) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/over-punch/type-tools)
 
 A wave washes through the paragraph character by character — modulating weight, width, oblique angle, or opacity as it passes. Not line by line, not word by word: every letterform sits at its own moment in the curve. At low amplitude it reads as texture; at high amplitude, as transformation.
 
-![A wave of font weight and opacity travelling diagonally through three paragraphs of text — each character surging bold as the wave crests and fading light as it troughs, while word spacing and line breaks stay perfectly still](https://raw.githubusercontent.com/Liiift-Studio/FloodText/main/assets/flood-wave.gif?v=1)
+![A wave of font weight and opacity travelling diagonally through three paragraphs of text — each character surging bold as the wave crests and fading light as it troughs, while word spacing and line breaks stay perfectly still](https://raw.githubusercontent.com/over-punch/FloodText/main/assets/flood-wave.gif?v=1)
 
 > Layering `wght` + `opacity` on a sine wave travelling diagonally. [Try the live demo →](https://floodtext.com)
 
-**[floodtext.com](https://floodtext.com)** · [npm](https://www.npmjs.com/package/@overpunch/floodtext) · [GitHub](https://github.com/Liiift-Studio/FloodText)
+**[floodtext.com](https://floodtext.com)** · [npm](https://www.npmjs.com/package/@overpunch/floodtext) · [GitHub](https://github.com/over-punch/FloodText)
 
 TypeScript · Zero dependencies · React + Vanilla JS
 

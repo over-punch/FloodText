@@ -80,10 +80,10 @@
 	"homepage": "https://floodtext.com",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Liiift-Studio/FloodText.git"
+		"url": "git+https://github.com/over-punch/FloodText.git"
 	},
 	"bugs": {
-		"url": "https://github.com/Liiift-Studio/FloodText/issues"
+		"url": "https://github.com/over-punch/FloodText/issues"
 	},
 	"sideEffects": false,
 	"publishConfig": {
