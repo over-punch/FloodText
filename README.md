@@ -1,6 +1,6 @@
 # Flood Text
 
-[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Ffloodtext.svg)](https://www.npmjs.com/package/@liiift-studio/floodtext) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
+[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Ffloodtext.svg)](https://www.npmjs.com/package/@overpunch/floodtext) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
 
 A wave washes through the paragraph character by character — modulating weight, width, oblique angle, or opacity as it passes. Not line by line, not word by word: every letterform sits at its own moment in the curve. At low amplitude it reads as texture; at high amplitude, as transformation.
 
@@ -8,7 +8,7 @@ A wave washes through the paragraph character by character — modulating weight
 
 > Layering `wght` + `opacity` on a sine wave travelling diagonally. [Try the live demo →](https://floodtext.com)
 
-**[floodtext.com](https://floodtext.com)** · [npm](https://www.npmjs.com/package/@liiift-studio/floodtext) · [GitHub](https://github.com/Liiift-Studio/FloodText)
+**[floodtext.com](https://floodtext.com)** · [npm](https://www.npmjs.com/package/@overpunch/floodtext) · [GitHub](https://github.com/Liiift-Studio/FloodText)
 
 TypeScript · Zero dependencies · React + Vanilla JS
 
@@ -17,7 +17,7 @@ TypeScript · Zero dependencies · React + Vanilla JS
 ## Install
 
 ```bash
-npm install @liiift-studio/floodtext
+npm install @overpunch/floodtext
 ```
 
 ---
@@ -29,7 +29,7 @@ npm install @liiift-studio/floodtext
 ### React component
 
 ```tsx
-import { FloodText } from '@liiift-studio/floodtext'
+import { FloodText } from '@overpunch/floodtext'
 
 <FloodText effect="wght" amplitude={200} period={4} density={2} direction="diagonal-down">
   Your paragraph text here...
@@ -47,7 +47,7 @@ Layer multiple effects simultaneously:
 ### React hook
 
 ```tsx
-import { useFloodText } from '@liiift-studio/floodtext'
+import { useFloodText } from '@overpunch/floodtext'
 
 // Inside a React component:
 const ref = useFloodText({ effect: 'wght', amplitude: 200, period: 4, density: 2 })
@@ -61,7 +61,7 @@ The hook starts the animation loop on mount, re-wraps characters and restarts on
 `applyFloodText` wraps characters and returns them. `startFloodText` drives the animation loop and returns a stop function. Options are shared between `applyFloodText` and `startFloodText`.
 
 ```ts
-import { applyFloodText, startFloodText, pauseFloodText, resumeFloodText, removeFloodText, getCleanHTML } from '@liiift-studio/floodtext'
+import { applyFloodText, startFloodText, pauseFloodText, resumeFloodText, removeFloodText, getCleanHTML } from '@overpunch/floodtext'
 
 const el = document.querySelector('p')
 const original = getCleanHTML(el)
@@ -91,7 +91,7 @@ resumeFloodText(el)  // Resume a paused flood animation
 ### TypeScript
 
 ```ts
-import type { FloodTextOptions, FloodEffect } from '@liiift-studio/floodtext'
+import type { FloodTextOptions, FloodEffect } from '@overpunch/floodtext'
 
 const effects: FloodEffect[] = ['wght', 'oblique']
 const opts: FloodTextOptions = { effect: effects, period: 4 }

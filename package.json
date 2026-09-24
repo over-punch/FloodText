@@ -1,5 +1,5 @@
 {
-	"name": "@liiift-studio/floodtext",
+	"name": "@overpunch/floodtext",
 	"version": "1.0.20",
 	"description": "Per-character variable font wave animation — weight, width, oblique, or opacity washes through the paragraph letter by letter",
 	"type": "module",

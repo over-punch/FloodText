@@ -3,8 +3,8 @@
 // Interactive flood-text demo with cursor/gyro mode, global scale for multi-effect, and live controls
 import { useState, useEffect, useDeferredValue, useRef, useMemo, useCallback } from "react"
 import { useMediaQuery, useClientValue } from "@/lib/clientValue"
-import { FloodText, pauseFloodText, resumeFloodText } from "@liiift-studio/floodtext"
-import type { FloodEffect } from "@liiift-studio/floodtext"
+import { FloodText, pauseFloodText, resumeFloodText } from "@overpunch/floodtext"
+import type { FloodEffect } from "@overpunch/floodtext"
 
 const PARAGRAPHS = [
 	`A wave washes through the paragraph — not line by line, not word by word, but character by character. Every letterform sits at its own position in the curve: weight surges as the wave crests and falls as it troughs, oblique angles tilt and recover, opacity breathes through each glyph in sequence. The text is the same, but it is no longer still.`,
