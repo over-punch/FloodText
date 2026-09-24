@@ -31,7 +31,7 @@ export default function Home() {
 				eyebrow="character-wave animation"
 				title={[{ text: "Character" }, { text: "by character.", italic: true, subtle: true }]}
 				install="@overpunch/floodtext"
-				github="https://github.com/Liiift-Studio/FloodText"
+				github="https://github.com/over-punch/FloodText"
 				tech={["TypeScript", "Zero dependencies", "React + Vanilla JS"]}
 			>
 				<p className="text-base leading-relaxed max-w-lg">
@@ -135,7 +135,7 @@ removeFloodText(el, original)`} />
 				bundle="floodtext"
 				attr="data-floodtext" figma="frozen"
 				framerComponent="FloodText"
-				repo="Liiift-Studio/FloodText"
+				repo="over-punch/FloodText"
 			/>
 
 			<SiteFooter current="floodText" npmVersion={version} siteVersion={siteVersion} />

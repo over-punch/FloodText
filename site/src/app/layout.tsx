@@ -28,7 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 	return (
 		<html lang="en" className="h-full antialiased">
 			<body className="min-h-full flex flex-col">
-				<SiteHeader current="floodText" githubUrl="https://github.com/Liiift-Studio/FloodText" />{children}</body>
+				<SiteHeader current="floodText" githubUrl="https://github.com/over-punch/FloodText" />{children}</body>
 		</html>
 	)
 }
