@@ -1,103 +1,80 @@
-// floodText/src/react/useFloodText.ts — React hook: character detection + animation lifecycle
+// floodText/src/react/useFloodText.ts — React hook: wraps the element's characters and runs the wave;
+// re-runs on container width changes, after fonts (or sentiment scores) load, and when options change.
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
-import { applyFloodText, startFloodText, getCleanHTML } from '../core/adjust'
+import { applyFloodText, getCleanHTML, loadSentiment, startFloodText } from '../core/adjust'
 import type { FloodTextOptions } from '../core/types'
 
 /**
- * React hook that applies the flood-text per-character wave animation to a ref'd element.
- * Wraps characters in a useLayoutEffect, starts the rAF animation loop, and
- * automatically re-wraps and restarts animation on container width change.
- * Respects `prefers-reduced-motion` — skips animation when the user has opted out.
+ * React hook that applies the flood-text per-character wave to a ref'd element.
+ * Respects `prefers-reduced-motion` (the element is left untouched). Stops on unmount.
  *
- * @param options - FloodTextOptions controlling style, amplitude, period, density, etc.
+ * @param options    - FloodTextOptions controlling effect, amplitude, period, density, etc.
+ * @param contentKey - A value that changes when the element's content changes (FloodText derives one from
+ *                     its children). The library rewrites the element's text nodes, so new content needs
+ *                     a fresh element and a fresh snapshot.
  * @returns A ref to attach to the target HTMLElement
  */
-export function useFloodText(options: FloodTextOptions) {
-	const ref             = useRef<HTMLElement>(null)
+export function useFloodText(options: FloodTextOptions = {}, contentKey?: string) {
+	const ref = useRef<HTMLElement>(null)
 	const originalHTMLRef = useRef<string | null>(null)
-	const optionsRef      = useRef(options)
+	/** The element originalHTMLRef was read from; a new element is read afresh. */
+	const sourceElRef = useRef<HTMLElement | null>(null)
+	const stopRef = useRef<(() => void) | null>(null)
+	const optionsRef = useRef(options)
 	optionsRef.current = options
 
-	const { effect, amplitude, amplitudes, properties, period, density, direction, waveShape, source, pauseOffscreen } = options
+	// Every option is a dependency (serialised, so an inline object doesn't re-run every render).
+	const optionsKey = JSON.stringify(options)
 
-	// Serialize array/object deps to stable strings so the dep array comparison works correctly
-	const effectKey     = Array.isArray(effect) ? effect.join(',') : (effect ?? 'wght')
-	const amplitudesKey = amplitudes   ? JSON.stringify(amplitudes)   : ''
-	const propertiesKey = properties   ? JSON.stringify(properties)   : ''
-
-	const run = useCallback((): (() => void) => {
+	const run = useCallback(() => {
 		const el = ref.current
-		if (!el) return () => {}
-
-		// Snapshot original HTML once — subsequent calls reuse the same snapshot
-		if (originalHTMLRef.current === null) {
+		if (!el) return
+		if (originalHTMLRef.current === null || sourceElRef.current !== el) {
 			originalHTMLRef.current = getCleanHTML(el)
+			sourceElRef.current = el
 		}
-
-		// Check prefers-reduced-motion — skip animation entirely if true
-		const prefersReduced =
-			typeof window !== 'undefined' &&
-			window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-		const charSpans = applyFloodText(el, originalHTMLRef.current, optionsRef.current)
-
-		if (prefersReduced || charSpans.length === 0) {
-			return () => {}
-		}
-
-		// Start animation loop and return its stop function
-		return startFloodText(charSpans, optionsRef.current)
+		stopRef.current?.()
+		stopRef.current = null
+		const spans = applyFloodText(el, originalHTMLRef.current, optionsRef.current)
+		if (spans.length > 0) stopRef.current = startFloodText(spans, optionsRef.current)
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [effectKey, amplitude, amplitudesKey, propertiesKey, period, density, direction, waveShape, source, pauseOffscreen])
-
-	// Re-run after fonts load — BCR-based character grouping and line detection give
-	// wrong results if called before the variable font finishes loading.
-	// Guard with a mounted flag so the callback does nothing if fonts resolve after unmount.
-	useEffect(() => {
-		let mounted = true
-		document.fonts?.ready?.then(() => {
-			if (mounted) run()
-		})
-		return () => { mounted = false }
-	}, [run])
+	}, [optionsKey, contentKey])
 
 	useLayoutEffect(() => {
-		let stopAnimation = run()
-
-		let lastWidth = 0
+		run()
+		const el = ref.current
+		if (!el || typeof ResizeObserver === 'undefined') return
+		// Watch the container, not the element: a shrink-wrapped element changes width with the wave.
+		const target = el.parentElement ?? el
+		let lastWidth = Math.round(target.getBoundingClientRect().width)
 		let rafId = 0
-
-		if (typeof ResizeObserver === 'undefined') {
-			return () => {
-				cancelAnimationFrame(rafId)
-				stopAnimation()
-			}
-		}
-
 		const ro = new ResizeObserver((entries) => {
+			if (!entries.length) return
 			const w = Math.round(entries[0].contentRect.width)
 			if (w === lastWidth) return
 			lastWidth = w
-			// Cancel any pending restart rAF and stop the running animation synchronously.
-			// Assigning a no-op before the new rAF fires prevents a second concurrent call
-			// to the old stop function if ResizeObserver fires again before the rAF runs.
-			stopAnimation()
-			stopAnimation = () => {}
 			cancelAnimationFrame(rafId)
-			rafId = requestAnimationFrame(() => {
-				stopAnimation = run()
-			})
+			rafId = requestAnimationFrame(run)
 		})
-
-		if (ref.current) {
-			ro.observe(ref.current)
-		}
-
+		ro.observe(target)
 		return () => {
+			stopRef.current?.()
+			stopRef.current = null
 			ro.disconnect()
 			cancelAnimationFrame(rafId)
-			stopAnimation()
 		}
+	}, [run])
+
+	// Re-run once fonts finish loading (not when they already have), and once sentiment scores arrive.
+	useEffect(() => {
+		let mounted = true
+		if (typeof document !== 'undefined' && document.fonts && document.fonts.status !== 'loaded') {
+			document.fonts.ready.then(() => { if (mounted) run() }).catch(() => {})
+		}
+		if (optionsRef.current.source === 'sentiment') {
+			loadSentiment().then((ok) => { if (ok && mounted) run() }).catch(() => {})
+		}
+		return () => { mounted = false }
 	}, [run])
 
 	return ref
