@@ -91,5 +91,9 @@ export interface FloodTextOptions {
 /** CSS class names injected by flood-text — use these to target generated markup */
 export const FLOOD_TEXT_CLASSES = {
 	char: 'ft-char',
+	/** Line break inserted at the end of each line, locking the browser's own breaks while the wave runs */
+	br: 'ft-br',
+	/** Hyphen shown where the browser had hyphenated a word at a locked line end */
+	hyphen: 'ft-hy',
 	probe: 'ft-probe',
 } as const

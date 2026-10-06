@@ -390,22 +390,26 @@ describe('flood-text', () => {
 
 	// ── MAJOR: aria attributes ────────────────────────────────────────────────
 
-	// 31. applyFloodText sets aria-label on container
-	it('applyFloodText sets aria-label on container equal to plain text', () => {
+	// 31. The text stays readable: no aria-label on the container (screen readers ignore it on a
+	// paragraph or div), and the characters are not hidden from assistive technology.
+	it('applyFloodText keeps the text in the accessibility tree (no aria-label, no aria-hidden)', () => {
 		const el = makeElement('Hello world')
 		const original = getCleanHTML(el)
-		applyFloodText(el, original, {})
-		expect(el.getAttribute('aria-label')).toBe('Hello world')
+		const charSpans = applyFloodText(el, original, {})
+		expect(el.getAttribute('aria-label')).toBeNull()
+		charSpans.forEach((span) => expect(span.hasAttribute('aria-hidden')).toBe(false))
+		expect(el.textContent).toBe('Hello world')
 	})
 
-	// 32. applyFloodText sets aria-hidden on each char span
-	it('applyFloodText sets aria-hidden on each char span', () => {
+	// 32. An author's own aria-label is left alone
+	it("applyFloodText and removeFloodText keep the author's aria-label", () => {
 		const el = makeElement('Hi')
+		el.setAttribute('aria-label', 'Greeting')
 		const original = getCleanHTML(el)
-		const charSpans = applyFloodText(el, original, {})
-		charSpans.forEach((span) => {
-			expect(span.getAttribute('aria-hidden')).toBe('true')
-		})
+		applyFloodText(el, original, {})
+		expect(el.getAttribute('aria-label')).toBe('Greeting')
+		removeFloodText(el, original)
+		expect(el.getAttribute('aria-label')).toBe('Greeting')
 	})
 
 	// 33. removeFloodText removes aria-label from container
@@ -498,5 +502,110 @@ describe('flood-text', () => {
 			// so we just verify startFloodText accepted the config without throwing
 			expect(typeof span.style.fontVariationSettings).toBe('string')
 		})
+	})
+})
+
+// ─── Review fixes (2026-10) ──────────────────────────────────────────────────
+
+/** Give every element a rendered box (happy-dom reports zero), so the wave writes values. */
+function mockRenderedLayout() {
+	vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+		width: 10, height: 10, top: 0, left: 0, right: 10, bottom: 10, x: 0, y: 0, toJSON: () => {},
+	} as DOMRect)
+}
+
+describe('review fixes', () => {
+	beforeEach(() => { document.body.innerHTML = '' })
+	afterEach(() => { vi.restoreAllMocks() })
+
+	it('keeps the original elements, so listeners survive apply, re-apply and remove', () => {
+		const el = makeElement('Read <a href="#" id="L">our terms</a> now.')
+		const link = el.querySelector('a')!
+		let clicks = 0
+		link.addEventListener('click', (e) => { e.preventDefault(); clicks++ })
+		const original = getCleanHTML(el)
+		applyFloodText(el, original)
+		applyFloodText(el, original)
+		el.querySelector('a')!.click()
+		expect(clicks).toBe(1)
+		expect(el.querySelectorAll('#L').length).toBe(1)
+		removeFloodText(el, original)
+		expect(el.querySelector('a')).toBe(link)
+		expect(el.innerHTML).toBe(original)
+	})
+
+	it('getCleanHTML returns the exact original, even when it contains an author .ft-char element', () => {
+		const html = 'Keep <span class="ft-char badge">NEW</span> badge'
+		const el = makeElement(html)
+		applyFloodText(el, html)
+		expect(getCleanHTML(el)).toBe(html)
+	})
+
+	it('re-applying with the wrapped markup does not nest spans', () => {
+		const el = makeElement('abc def')
+		applyFloodText(el, el.innerHTML)
+		applyFloodText(el, el.innerHTML)
+		expect(el.querySelectorAll(`.${FLOOD_TEXT_CLASSES.char} .${FLOOD_TEXT_CLASSES.char}`).length).toBe(0)
+		expect(getCleanHTML(el)).toBe('abc def')
+	})
+
+	it('wraps graphemes, not code points (emoji sequences and combining marks stay whole)', () => {
+		const el = makeElement('👨‍👩‍👧 é')
+		const spans = applyFloodText(el, el.innerHTML)
+		expect(spans.map((s) => s.textContent)).toEqual(['👨‍👩‍👧', 'é'])
+	})
+
+	it('leaves styles, scripts, form fields and SVG text alone', () => {
+		const html = 'Text <style>.zz{color:red}</style><textarea>typed</textarea><svg><text>svg</text></svg> end'
+		const el = makeElement(html)
+		applyFloodText(el, html)
+		expect(el.querySelector('style')!.textContent).toBe('.zz{color:red}')
+		expect(el.querySelector('textarea')!.querySelectorAll('span').length).toBe(0)
+		expect(el.querySelector('svg')!.querySelectorAll('span').length).toBe(0)
+	})
+
+	it('stop() puts every character back at its own style', () => {
+		mockRenderedLayout()
+		const el = makeElement('Hello world')
+		const spans = applyFloodText(el, el.innerHTML)
+		const stop = startFloodText(spans, { effect: ['wght', 'opacity'] })
+		expect(spans[0].style.opacity).not.toBe('')
+		stop()
+		spans.forEach((s) => {
+			expect(s.style.opacity).toBe('')
+			expect(s.style.fontVariationSettings).toBe('')
+		})
+	})
+
+	it("animates around the author's own weight and keeps their other axes", () => {
+		mockRenderedLayout()
+		const el = makeElement('<strong style="font-weight:700; font-variation-settings: \'GRAD\' 150">Bold</strong>')
+		const spans = applyFloodText(el, el.innerHTML)
+		startFloodText(spans, { effect: 'wght', amplitude: 50 })
+		const fvs = spans[0].style.fontVariationSettings
+		expect(fvs).toContain('GRAD')
+		const wght = parseFloat(/wght"?\s+(-?[\d.]+)/.exec(fvs)![1])
+		expect(wght).toBeGreaterThanOrEqual(650)
+		expect(wght).toBeLessThanOrEqual(750)
+	})
+
+	it('invalid options fall back with a warning instead of stopping the animation', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const el = makeElement('Hello')
+		const spans = applyFloodText(el, el.innerHTML)
+		expect(() => startFloodText(spans, { period: NaN, density: NaN, amplitude: NaN, effect: 'WGHT' as never })()).not.toThrow()
+		expect(spans[0].style.fontVariationSettings).toBe('')
+		expect(warn).toHaveBeenCalled()
+	})
+
+	it('a second start on the same characters stops the first', () => {
+		mockRenderedLayout()
+		const el = makeElement('Hello')
+		const spans = applyFloodText(el, el.innerHTML)
+		const stop1 = startFloodText(spans, { effect: 'opacity' })
+		const stop2 = startFloodText(spans, { effect: 'blur' })
+		expect(spans[0].style.opacity).toBe('')
+		expect(spans[0].style.filter).not.toBe('')
+		stop2(); stop1()
 	})
 })
