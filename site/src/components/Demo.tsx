@@ -8,7 +8,7 @@ import type { FloodEffect } from "@overpunch/floodtext"
 
 const PARAGRAPHS = [
 	`A wave washes through the paragraph — not line by line, not word by word, but character by character. Every letterform sits at its own position in the curve: weight surges as the wave crests and falls as it troughs, oblique angles tilt and recover, opacity breathes through each glyph in sequence. The text is the same, but it is no longer still.`,
-	`CSS applies properties to elements, not to individual characters. Font variation settings, opacity, transforms — all or nothing, the entire block at once. Flood Text works around this by wrapping each visible character in its own span, evaluating the wave function at that character's normalised position, and writing the result as an inline style. Whitespace is left as bare text nodes and never touched — no layout impact, no reflow.`,
+	`CSS applies properties to elements, not to individual characters. Font variation settings, opacity, transforms — all or nothing, the entire block at once. Flood Text works around this by wrapping each visible character in its own span, evaluating the wave function at that character's normalised position, and writing the result as an inline style. Whitespace is left as bare text nodes, and the browser's own line breaks are locked while the wave runs, so words never jump between lines.`,
 	`At low amplitude the effect is texture: a subtle restlessness the reader feels before they name it, like the slight variation in hand-set type. At high amplitude it becomes transformation — weight swinging from hairline to black, letters tilting into italics and back, the whole paragraph in motion. Density controls how many wave cycles are visible at once; period controls the tempo. Layer wght with oblique, or opacity with wdth, and the motion compounds into something no single CSS property could produce.`,
 ]
 
@@ -251,19 +251,6 @@ export default function Demo() {
 		}
 	}, [gyroMode])
 
-	// Pause/resume effect — skips initial mount so it only runs after animation exists (#51)
-	useEffect(() => {
-		if (!mountedRef.current) {
-			mountedRef.current = true
-			return
-		}
-		if (!containerRef.current) return
-		if (paused) {
-			pauseFloodText(containerRef.current)
-		} else {
-			resumeFloodText(containerRef.current)
-		}
-	}, [paused])
 
 	/** Stable pause toggle handler (#63) */
 	const togglePause = useCallback(() => setPausedOverride(!paused), [paused])
@@ -304,9 +291,31 @@ export default function Demo() {
 		[singleEffect, activeEffects]
 	)
 
-	// Amplitude passed to FloodText: single effect uses the amplitude slider,
-	// multi-effect uses the scale slider value as a uniform amplitude proxy
-	const effectiveAmplitude = singleEffect ? dAmplitude : dScale
+	// Amplitude passed to FloodText: single effect uses the amplitude slider. Layered effects
+	// ignore `amplitude`, so the scale slider multiplies each effect's default via `amplitudes`.
+	const effectiveAmplitude = singleEffect ? dAmplitude : undefined
+
+	/** Per-effect amplitudes for layered effects: each effect's default × the scale slider */
+	const effectiveAmplitudes = useMemo(
+		() => singleEffect ? undefined : Object.fromEntries([...activeEffects].map(e => [e, EFFECT_CONFIG[e].default * dScale])) as Partial<Record<FloodEffect, number>>,
+		[singleEffect, activeEffects, dScale]
+	)
+
+	// Pause/resume effect — skips initial mount so it only runs after animation exists (#51).
+	// pauseFloodText takes the element passed to applyFloodText, so each paragraph is paused on its
+	// own (passing the wrapper only reached the first paragraph). It re-runs when the options change,
+	// because the component restarts its animation then and a paused demo should stay paused.
+	useEffect(() => {
+		if (!mountedRef.current) {
+			mountedRef.current = true
+			return
+		}
+		if (!containerRef.current) return
+		for (const para of Array.from(containerRef.current.children) as HTMLElement[]) {
+			if (paused) pauseFloodText(para)
+			else resumeFloodText(para)
+		}
+	}, [paused, effectProp, effectiveAmplitude, effectiveAmplitudes, dPeriod, dDensity, direction, waveShape])
 
 	// Sliders are inactive (and visually dimmed) when cursor or gyro mode is driving values (#49)
 	const activeMode = cursorMode || gyroMode
@@ -414,6 +423,7 @@ export default function Demo() {
 							key={`para-${i}`}
 							effect={effectProp}
 							amplitude={effectiveAmplitude}
+							amplitudes={effectiveAmplitudes}
 							period={dPeriod}
 							density={dDensity}
 							direction={direction}
