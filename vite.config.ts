@@ -6,16 +6,17 @@ import dts from 'vite-plugin-dts'
 export default defineConfig({
 	plugins: [
 		react(),
-		dts({ include: ['src'], exclude: ['src/__tests__/**'], rollupTypes: true }),
+		dts({ include: ['src'], exclude: ['src/__tests__/**', 'src/framer/**', 'src/webflow/**'], rollupTypes: true }),
 	],
 	build: {
 		lib: {
-			entry: 'src/index.ts',
+			entry: { index: 'src/index.ts', core: 'src/core.ts' },
 			formats: ['es', 'cjs'],
-			fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
+			fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'js' : 'cjs'}`,
 		},
 		rollupOptions: {
-			external: ['react', 'react-dom', 'react/jsx-runtime'],
+			// sentiment is an optional dependency, loaded only for source: 'sentiment' — never bundled.
+			external: ['react', 'react-dom', 'react/jsx-runtime', 'sentiment'],
 			// No globals needed — this build only produces es and cjs formats, not iife/umd.
 		},
 	},
