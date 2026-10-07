@@ -1,6 +1,6 @@
 {
 	"name": "@overpunch/floodtext",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Per-character variable font wave animation — weight, width, oblique, or opacity washes through the paragraph letter by letter",
 	"type": "module",
 	"main": "dist/index.cjs",
